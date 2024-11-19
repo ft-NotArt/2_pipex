@@ -6,7 +6,7 @@
 /*   By: anoteris <noterisarthur42@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 07:14:00 by anoteris          #+#    #+#             */
-/*   Updated: 2024/11/15 19:22:42 by anoteris         ###   ########.fr       */
+/*   Updated: 2024/11/19 10:11:07 by anoteris         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,6 +61,17 @@ int			ft_isascii(int c);
  * @author NotArt
  */
 int			ft_isprint(int c);
+
+/**
+ * @name isspace
+ * @param c The ascii code of a char
+ * @return Returns 1 if c matches the ascii code of a white-space character,
+ * including space, form-feed, newline, carriage return,
+ * horizontal tab and vertical tab.
+ * It returns 0 if not
+ * @author NotArt
+ */
+int			ft_isspace(int c);
 
 // <|===|> Str <|===|>
 

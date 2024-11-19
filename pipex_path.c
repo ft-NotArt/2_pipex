@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   pipex.c                                            :+:      :+:    :+:   */
+/*   pipex_path.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: anoteris <noterisarthur42@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/11/18 21:15:37 by anoteris          #+#    #+#             */
-/*   Updated: 2024/11/19 10:02:27 by anoteris         ###   ########.fr       */
+/*   Created: 2024/11/19 10:03:35 by anoteris          #+#    #+#             */
+/*   Updated: 2024/11/19 10:04:21 by anoteris         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 extern char	**environ ;
 
-char	**get_all_paths(void)
+static char	**get_all_paths(void)
 {
 	char	**paths ;
 	int		i ;
@@ -28,7 +28,7 @@ char	**get_all_paths(void)
 	return (paths);
 }
 
-char	*get_path_cmd(char *path, char *cmd)
+static char	*get_path_cmd(char *path, char *cmd)
 {
 	char	*res ;
 
@@ -39,7 +39,7 @@ char	*get_path_cmd(char *path, char *cmd)
 	return (res);
 }
 
-bool	check_perm(char *cmd, bool *found_cmd)
+static bool	check_perm(char *cmd, bool *found_cmd)
 {
 	bool	perm;
 
@@ -80,60 +80,4 @@ char	*get_valid_path(char *cmd)
 		errno = EACCES ;
 	free_str_array(paths);
 	return (NULL);
-}
-
-bool	set_fd(int argc, char *argv[], int fd[2], int i)
-{
-	if (i == argc - 1)
-		if (dup2(open(argv[i], O_WRONLY), STDOUT_FILENO) == -1)
-			return (false);
-	else
-	{
-		if (dup2(fd[0], STDOUT_FILENO) == -1)
-			return (false);
-		if (i == 3)
-			if (dup2(open(argv[i - 2], O_RDONLY), STDIN_FILENO) == -1)
-				return (false);
-		else
-			if (dup2(fd[1], STDIN_FILENO) == -1)
-				return (false);
-	}
-	return (true);
-}
-
-void	fork_loop(int argc, char *argv[])
-{
-	int	fd[2];
-	int	id ;
-	int	i ;
-
-	if (pipe(fd) == -1)
-		return (strerror(errno), errno);
-	id = 1 ;
-	i = argc ;
-	while (id != 0 && i-- > 3)
-	{
-		if (id != 0)
-		{
-			id = fork();
-			if (id == -1)
-				return (strerror(errno), exit(EXIT_FAILURE)); //FIXME: idk how to do, what to do nor who to do
-		}
-	}
-	if (!set_fd(argc, argv, fd, i))
-		return (strerror(errno), exit(EXIT_FAILURE));
-	
-}
-
-int	main(int argc, char *argv[])
-{
-	int	i ;
-	int	error ;
-
-	
-
-	fork_loop(argc, argv);
-	if (errno)
-		return(errno);
-	
 }

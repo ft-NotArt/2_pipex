@@ -17,7 +17,7 @@ ARFLAGS			=	rcs
 # FILES
 
 FILES			=	is/ft_isalnum is/ft_isdigit is/ft_isalpha				\
-					is/ft_isprint is/ft_isascii								\
+					is/ft_isprint is/ft_isascii is/ft_isspace				\
 \
 					str/ft_strlen											\
 					str/ft_strlcpy str/ft_strlcat							\
