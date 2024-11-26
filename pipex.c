@@ -6,7 +6,7 @@
 /*   By: anoteris <noterisarthur42@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 21:15:37 by anoteris          #+#    #+#             */
-/*   Updated: 2024/11/19 10:02:27 by anoteris         ###   ########.fr       */
+/*   Updated: 2024/11/26 07:37:32 by anoteris         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,126 +14,49 @@
 
 extern char	**environ ;
 
-char	**get_all_paths(void)
+int	recursive_pipe(int argc, char *argv[], int cmd_index, int fd_in)
 {
-	char	**paths ;
-	int		i ;
+	int		fd[2];
+	pid_t	pid ;
+	char	**cmd_args ;
+	int	exit_status ;
 
-	paths = NULL ;
-	i = 0;
-	while (environ[i] && strncmp(environ[i], "PATH=", 5))
-		i++;
-	if (environ[i])
-		paths = ft_split(&environ[i][5], ':');
-	return (paths);
-}
-
-char	*get_path_cmd(char *path, char *cmd)
-{
-	char	*res ;
-
-	res = ft_calloc(ft_strlen(path) + ft_strlen(cmd) + 2, 1);
-	ft_strlcpy(res, path, ft_strlen(path) + 1);
-	ft_strlcat(res, "/", ft_strlen(res) + 2);
-	ft_strlcat(res, cmd, ft_strlen(res) + ft_strlen(cmd) + 1);
-	return (res);
-}
-
-bool	check_perm(char *cmd, bool *found_cmd)
-{
-	bool	perm;
-
-	perm = !access(cmd, F_OK);
-	if (perm)
+	exit_status = EXIT_SUCCESS;
+	if (cmd_index < (argc - 4) && pipe(fd) == -1)
+		return (errno);
+	pid = fork();
+	if (pid < 0)
+		return (errno);
+	if (pid == 0)
 	{
-		*found_cmd = true ;
-		perm = !access(cmd, X_OK);
+		set_fd(fd_in, get_fd_out(argc, argv, cmd_index, fd));
+		cmd_args = get_cmd_args(argv[cmd_index + 2]);
+		if (!cmd_args)
+			exit(EXIT_FAILURE);
+		execve(cmd_args[0], cmd_args, environ);
 	}
-	return (perm);
-}
-
-// TODO:	think of the error case when using this function
-//			if the cmd isn't found in any of the paths, and null is returned
-//			set strerror as "command not found" (not an errno)
-char	*get_valid_path(char *cmd)
-{
-	char	**paths ;
-	char	*res ;
-	int		i ;
-	bool	found_cmd ;
-
-	found_cmd = false ;
-	paths = get_all_paths();
-	i = -1 ;
-	while (paths && paths[++i])
-	{
-		res = get_path_cmd(paths[i], cmd);
-		if (check_perm(cmd, &found_cmd))
-		{
-			free_str_array(paths);
-			return (res);
-		}
-		else
-			free (res);
-	}
-	if (found_cmd)
-		errno = EACCES ;
-	free_str_array(paths);
-	return (NULL);
-}
-
-bool	set_fd(int argc, char *argv[], int fd[2], int i)
-{
-	if (i == argc - 1)
-		if (dup2(open(argv[i], O_WRONLY), STDOUT_FILENO) == -1)
-			return (false);
-	else
-	{
-		if (dup2(fd[0], STDOUT_FILENO) == -1)
-			return (false);
-		if (i == 3)
-			if (dup2(open(argv[i - 2], O_RDONLY), STDIN_FILENO) == -1)
-				return (false);
-		else
-			if (dup2(fd[1], STDIN_FILENO) == -1)
-				return (false);
-	}
-	return (true);
-}
-
-void	fork_loop(int argc, char *argv[])
-{
-	int	fd[2];
-	int	id ;
-	int	i ;
-
-	if (pipe(fd) == -1)
-		return (strerror(errno), errno);
-	id = 1 ;
-	i = argc ;
-	while (id != 0 && i-- > 3)
-	{
-		if (id != 0)
-		{
-			id = fork();
-			if (id == -1)
-				return (strerror(errno), exit(EXIT_FAILURE)); //FIXME: idk how to do, what to do nor who to do
-		}
-	}
-	if (!set_fd(argc, argv, fd, i))
-		return (strerror(errno), exit(EXIT_FAILURE));
-	
+	(double_close(argc, cmd_index, fd, fd_in), waitpid(pid, &exit_status, 0));
+	if (WIFEXITED(exit_status) && WEXITSTATUS(exit_status))
+		return (WEXITSTATUS(exit_status));
+	if (cmd_index < (argc - 4))
+		return (recursive_pipe(argc, argv, (cmd_index + 1), fd[0]));
+	return (0);
 }
 
 int	main(int argc, char *argv[])
 {
-	int	i ;
-	int	error ;
+	int	infile_fd ;
 
-	
-
-	fork_loop(argc, argv);
-	if (errno)
-		return(errno);
-	
+	if (argc < 5)
+		return (ft_putstr_fd("Too few arguments\n", STDOUT_FILENO), 1);
+	infile_fd = open(argv[1], O_RDONLY);
+	if (infile_fd < 0)
+		return (perror("Error opening infile "), 1);
+	if (recursive_pipe(argc, argv, 0, infile_fd))
+	{
+		if (errno)
+			ft_putstr_fd(strerror(errno), STDERR_FILENO);
+		return (1);
+	}
+	return (0);
 }

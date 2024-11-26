@@ -6,26 +6,21 @@
 /*   By: anoteris <noterisarthur42@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 10:03:35 by anoteris          #+#    #+#             */
-/*   Updated: 2024/11/19 10:04:21 by anoteris         ###   ########.fr       */
+/*   Updated: 2024/11/26 04:17:08 by anoteris         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-extern char	**environ ;
-
-static char	**get_all_paths(void)
+static char	*local_cmd(char *cmd)
 {
-	char	**paths ;
-	int		i ;
+	bool	found_cmd ;
 
-	paths = NULL ;
-	i = 0;
-	while (environ[i] && strncmp(environ[i], "PATH=", 5))
-		i++;
-	if (environ[i])
-		paths = ft_split(&environ[i][5], ':');
-	return (paths);
+	found_cmd = false ;
+	if (check_perm(cmd, &found_cmd))
+		return (ft_strdup(cmd));
+	else
+		return (NULL);
 }
 
 static char	*get_path_cmd(char *path, char *cmd)
@@ -39,27 +34,11 @@ static char	*get_path_cmd(char *path, char *cmd)
 	return (res);
 }
 
-static bool	check_perm(char *cmd, bool *found_cmd)
-{
-	bool	perm;
-
-	perm = !access(cmd, F_OK);
-	if (perm)
-	{
-		*found_cmd = true ;
-		perm = !access(cmd, X_OK);
-	}
-	return (perm);
-}
-
-// TODO:	think of the error case when using this function
-//			if the cmd isn't found in any of the paths, and null is returned
-//			set strerror as "command not found" (not an errno)
-char	*get_valid_path(char *cmd)
+static char	*non_local_cmd(char *cmd)
 {
 	char	**paths ;
-	char	*res ;
 	int		i ;
+	char	*res ;
 	bool	found_cmd ;
 
 	found_cmd = false ;
@@ -68,11 +47,8 @@ char	*get_valid_path(char *cmd)
 	while (paths && paths[++i])
 	{
 		res = get_path_cmd(paths[i], cmd);
-		if (check_perm(cmd, &found_cmd))
-		{
-			free_str_array(paths);
-			return (res);
-		}
+		if (check_perm(res, &found_cmd))
+			return (free_str_array(paths), (res));
 		else
 			free (res);
 	}
@@ -80,4 +56,31 @@ char	*get_valid_path(char *cmd)
 		errno = EACCES ;
 	free_str_array(paths);
 	return (NULL);
+}
+
+static char	*get_valid_path_cmd(char *cmd)
+{
+	if (ft_strchr(cmd, '/'))
+		return (local_cmd(cmd));
+	else
+		return (non_local_cmd(cmd));
+}
+
+char	**get_cmd_args(char *cmd_args)
+{
+	char	**res ;
+	char	*tmp ;
+
+	res = ft_split(cmd_args, ' ');
+	if (!res)
+		return (ft_putstr_fd(strerror(errno), STDERR_FILENO), NULL);
+	tmp = get_valid_path_cmd(res[0]);
+	if (!tmp)
+	{
+		free_str_array(res);
+		return (ft_putstr_fd("Command not found\n", STDERR_FILENO), NULL);
+	}
+	free(res[0]);
+	res[0] = tmp ;
+	return (res);
 }
