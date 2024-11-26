@@ -6,7 +6,7 @@
 /*   By: anoteris <noterisarthur42@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/20 07:14:00 by anoteris          #+#    #+#             */
-/*   Updated: 2024/11/19 10:11:07 by anoteris         ###   ########.fr       */
+/*   Updated: 2024/11/26 09:07:12 by anoteris         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,6 +132,17 @@ char		*ft_strchr(const char *s, int c);
  * @author NotArt
  */
 char		*ft_strrchr(const char *s, int c);
+
+/**
+ * @name strcmp
+ * @param s1 A string
+ * @param s2 A better string
+ * @return The difference between the ascii code of the two char
+ * that show the first difference between the two strings,
+ * if the two strings appear to be identical, then 0 is returned
+ * @author NotArt
+ */
+int			ft_strcmp(const char *s1, const char *s2);
 
 /**
  * @name strncmp

@@ -6,7 +6,7 @@
 /*   By: anoteris <noterisarthur42@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 21:15:37 by anoteris          #+#    #+#             */
-/*   Updated: 2024/11/26 07:37:32 by anoteris         ###   ########.fr       */
+/*   Updated: 2024/11/26 14:52:29 by anoteris         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ int	recursive_pipe(int argc, char *argv[], int cmd_index, int fd_in)
 	int		fd[2];
 	pid_t	pid ;
 	char	**cmd_args ;
-	int	exit_status ;
+	int		exit_status ;
 
 	exit_status = EXIT_SUCCESS;
 	if (cmd_index < (argc - 4) && pipe(fd) == -1)
@@ -45,18 +45,23 @@ int	recursive_pipe(int argc, char *argv[], int cmd_index, int fd_in)
 
 int	main(int argc, char *argv[])
 {
-	int	infile_fd ;
+	bool	here_doc ;
+	int		exit_status ;
 
 	if (argc < 5)
 		return (ft_putstr_fd("Too few arguments\n", STDOUT_FILENO), 1);
-	infile_fd = open(argv[1], O_RDONLY);
-	if (infile_fd < 0)
-		return (perror("Error opening infile "), 1);
-	if (recursive_pipe(argc, argv, 0, infile_fd))
+	here_doc = (ft_strncmp(argv[1], "here_doc", 9) == 0);
+	if (here_doc && argc < 6)
+		return (ft_putstr_fd("Too few arguments\n", STDOUT_FILENO), 1);
+	exit_status = recursive_pipe(argc, argv, here_doc,
+			get_infile(argv, here_doc));
+	if (exit_status)
 	{
 		if (errno)
 			ft_putstr_fd(strerror(errno), STDERR_FILENO);
-		return (1);
+		return (exit_status);
 	}
+	if (here_doc)
+		unlink("/tmp/here_doc");
 	return (0);
 }

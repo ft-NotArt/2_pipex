@@ -6,7 +6,7 @@
 /*   By: anoteris <noterisarthur42@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/19 10:03:35 by anoteris          #+#    #+#             */
-/*   Updated: 2024/11/26 04:17:08 by anoteris         ###   ########.fr       */
+/*   Updated: 2024/11/26 14:53:18 by anoteris         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,14 +71,18 @@ char	**get_cmd_args(char *cmd_args)
 	char	**res ;
 	char	*tmp ;
 
+	if (is_only_space(cmd_args))
+		return (ft_putstr_fd("Invalid command\n", STDERR_FILENO), NULL);
 	res = ft_split(cmd_args, ' ');
 	if (!res)
 		return (ft_putstr_fd(strerror(errno), STDERR_FILENO), NULL);
 	tmp = get_valid_path_cmd(res[0]);
 	if (!tmp)
 	{
-		free_str_array(res);
-		return (ft_putstr_fd("Command not found\n", STDERR_FILENO), NULL);
+		if (!errno)
+			errno = ENOENT ;
+		return (ft_putstr_fd(res[0], STDERR_FILENO), free_str_array(res),
+			perror(": Command not found "), (NULL));
 	}
 	free(res[0]);
 	res[0] = tmp ;

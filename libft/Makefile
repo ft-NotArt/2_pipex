@@ -22,7 +22,7 @@ FILES			=	is/ft_isalnum is/ft_isdigit is/ft_isalpha				\
 					str/ft_strlen											\
 					str/ft_strlcpy str/ft_strlcat							\
 					str/ft_strchr str/ft_strrchr							\
-					str/ft_strncmp											\
+					str/ft_strcmp str/ft_strncmp							\
 					str/ft_strdup str/ft_substr								\
 					str/ft_strnstr str/ft_strtrim							\
 					str/ft_strjoin str/ft_split								\
@@ -60,6 +60,8 @@ FILES			=	is/ft_isalnum is/ft_isdigit is/ft_isalpha				\
 					printf/ft_printf_field_nbr								\
 					printf/ft_printf_field_address							\
 					printf/ft_printf_write_flag								\
+\
+					gnl/get_next_line										\
 \
 
 SRC				=	$(addsuffix .c, $(FILES))
