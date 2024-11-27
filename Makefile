@@ -22,8 +22,10 @@ ARFLAGS			=	rcs
 
 FILES			=	pipex							\
 					pipex_cmd						\
+					pipex_exec						\
 					pipex_fd						\
 					pipex_utils						\
+					pipex_error						\
 \
 
 SRC				=	$(addsuffix .c, $(FILES))

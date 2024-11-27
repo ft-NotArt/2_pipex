@@ -6,19 +6,16 @@
 /*   By: anoteris <noterisarthur42@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 21:15:37 by anoteris          #+#    #+#             */
-/*   Updated: 2024/11/26 14:52:29 by anoteris         ###   ########.fr       */
+/*   Updated: 2024/11/27 22:35:54 by anoteris         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-extern char	**environ ;
-
 int	recursive_pipe(int argc, char *argv[], int cmd_index, int fd_in)
 {
 	int		fd[2];
 	pid_t	pid ;
-	char	**cmd_args ;
 	int		exit_status ;
 
 	exit_status = EXIT_SUCCESS;
@@ -30,14 +27,13 @@ int	recursive_pipe(int argc, char *argv[], int cmd_index, int fd_in)
 	if (pid == 0)
 	{
 		set_fd(fd_in, get_fd_out(argc, argv, cmd_index, fd));
-		cmd_args = get_cmd_args(argv[cmd_index + 2]);
-		if (!cmd_args)
-			exit(EXIT_FAILURE);
-		execve(cmd_args[0], cmd_args, environ);
+		if (cmd_index < (argc - 4))
+			close(fd[0]);
+		child_exec(argc, argv, cmd_index, fd);
 	}
 	(double_close(argc, cmd_index, fd, fd_in), waitpid(pid, &exit_status, 0));
 	if (WIFEXITED(exit_status) && WEXITSTATUS(exit_status))
-		return (WEXITSTATUS(exit_status));
+		return (exit_error(exit_status, cmd_index, argc, fd));
 	if (cmd_index < (argc - 4))
 		return (recursive_pipe(argc, argv, (cmd_index + 1), fd[0]));
 	return (0);

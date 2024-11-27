@@ -6,7 +6,7 @@
 /*   By: anoteris <noterisarthur42@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 21:25:10 by anoteris          #+#    #+#             */
-/*   Updated: 2024/11/26 16:20:05 by anoteris         ###   ########.fr       */
+/*   Updated: 2024/11/27 22:31:13 by anoteris         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,12 @@ char	**get_all_paths(void)
 		i++;
 	if (environ[i])
 		paths = ft_split(&environ[i][5], ':');
+	if (!paths)
+	{
+		paths = malloc(2 * sizeof(char **));
+		paths[0] = ft_strdup(".");
+		paths[1] = NULL;
+	}
 	return (paths);
 }
 
