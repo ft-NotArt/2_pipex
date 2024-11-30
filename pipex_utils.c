@@ -6,7 +6,7 @@
 /*   By: anoteris <noterisarthur42@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 21:25:10 by anoteris          #+#    #+#             */
-/*   Updated: 2024/11/27 22:31:13 by anoteris         ###   ########.fr       */
+/*   Updated: 2024/11/30 05:15:44 by anoteris         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,10 +57,10 @@ bool	check_perm(char *cmd, bool *found_cmd)
 	return (perm);
 }
 
-void	double_close(int argc, int cmd_index, int fd[2], int fd_in)
+void	double_close(t_args *arg, int cmd_index, int fd[2], int fd_in)
 {
 	close(fd_in);
-	if (cmd_index < (argc - 4))
+	if (cmd_index < (arg->c - (4 + arg->here_doc)))
 		close(fd[1]);
 }
 

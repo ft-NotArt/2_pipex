@@ -6,7 +6,7 @@
 /*   By: anoteris <noterisarthur42@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/26 04:31:13 by anoteris          #+#    #+#             */
-/*   Updated: 2024/11/27 21:53:25 by anoteris         ###   ########.fr       */
+/*   Updated: 2024/11/30 15:01:28 by anoteris         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,23 +20,23 @@ void	set_fd(int fd_in, int fd_out)
 	close(fd_out);
 }
 
-int	get_fd_out(int argc, char *argv[], int cmd_index, int fd[2])
+int	get_fd_out(t_args *arg, int cmd_index, int fd[2])
 {
 	int	fd_out ;
 	int	flags ;
 
-	if (cmd_index == (argc - 4))
+	if (cmd_index == (arg->c - (4 + arg->here_doc)))
 	{
 		flags = O_WRONLY | O_CREAT ;
-		if (ft_strncmp(argv[1], "here_doc", 9) == 0)
+		if (arg->here_doc)
 			flags = flags | O_APPEND ;
 		else
 			flags = flags | O_TRUNC ;
-		fd_out = open(argv[(argc - 1)], flags, 0644);
+		fd_out = open(arg->v[(arg->c - 1)], flags, 0644);
 		if (fd_out < 0)
 		{
 			perror("Error opening outfile ");
-			exit(EXIT_FAILURE);
+			return (-1);
 		}
 	}
 	else
@@ -44,19 +44,19 @@ int	get_fd_out(int argc, char *argv[], int cmd_index, int fd[2])
 	return (fd_out);
 }
 
-static void	read_here_doc(char *argv[])
+static int	read_here_doc(t_args *arg)
 {
 	char	*line ;
 	char	*limiter ;
 	int		fd ;
 
-	fd = open("/tmp/here_doc", O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	fd = open("/tmp/here_doc_pipex", O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (fd < 0)
 	{
 		perror("Error opening/creating '/tmp/here_doc' ");
-		exit(EXIT_FAILURE);
+		return (-1);
 	}
-	limiter = ft_strjoin(argv[2], "\n");
+	limiter = ft_strjoin(arg->v[2], "\n");
 	if (!limiter)
 		(ft_putstr_fd(strerror(errno), STDERR_FILENO), exit(EXIT_FAILURE));
 	line = get_next_line(STDIN_FILENO);
@@ -69,29 +69,31 @@ static void	read_here_doc(char *argv[])
 	free(line);
 	free(limiter);
 	close(fd);
+	return (0);
 }
 
-int	get_infile(char *argv[], bool here_doc)
+int	get_infile(t_args *arg)
 {
 	int	infile_fd ;
 
-	if (here_doc)
+	if (arg->here_doc)
 	{
-		read_here_doc(argv);
-		infile_fd = open("/tmp/here_doc", O_RDONLY);
+		if (read_here_doc(arg) == -1)
+			return (-1);
+		infile_fd = open("/tmp/here_doc_pipex", O_RDONLY);
 		if (infile_fd < 0)
 		{
 			perror("Error opening infile ");
-			exit(EXIT_FAILURE);
+			return (-1);
 		}
 	}
 	else
 	{
-		infile_fd = open(argv[1], O_RDONLY);
+		infile_fd = open(arg->v[1], O_RDONLY);
 		if (infile_fd < 0)
 		{
 			perror("Error opening infile ");
-			exit(EXIT_FAILURE);
+			return (-1);
 		}
 	}
 	return (infile_fd);
