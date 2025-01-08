@@ -6,7 +6,7 @@
 /*   By: anoteris <noterisarthur42@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/27 22:05:37 by anoteris          #+#    #+#             */
-/*   Updated: 2024/11/30 14:48:30 by anoteris         ###   ########.fr       */
+/*   Updated: 2025/01/08 22:10:21 by anoteris         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,8 @@ static void	child_exec(t_args *arg, int cmd_index, int *pid)
 	cmd_args = get_cmd_args(arg->v[cmd_index + 2 + arg->here_doc]);
 	if (!cmd_args)
 	{
+		free(arg);
+		free(pid);
 		if (errno == EACCES)
 			exit(EXIT_NO_PERM);
 		exit(EXIT_CMD_NOT_FOUND);
