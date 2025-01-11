@@ -6,7 +6,7 @@
 /*   By: anoteris <noterisarthur42@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/26 04:31:13 by anoteris          #+#    #+#             */
-/*   Updated: 2024/11/30 15:01:28 by anoteris         ###   ########.fr       */
+/*   Updated: 2025/01/11 18:43:11 by anoteris         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,4 +97,17 @@ int	get_infile(t_args *arg)
 		}
 	}
 	return (infile_fd);
+}
+
+int	get_empty_pipe_out(void)
+{
+	int	fd[2];
+
+	if (pipe(fd) == -1)
+	{
+		ft_putstr_fd(strerror(errno), STDERR_FILENO);
+		return (-1);
+	}
+	close(fd[1]);
+	return (fd[0]);
 }

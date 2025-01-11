@@ -6,7 +6,7 @@
 /*   By: anoteris <noterisarthur42@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/18 21:16:50 by anoteris          #+#    #+#             */
-/*   Updated: 2024/11/30 15:01:49 by anoteris         ###   ########.fr       */
+/*   Updated: 2025/01/11 18:43:15 by anoteris         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,7 @@ char	**get_cmd_args(char *cmd_args);
 void	set_fd(int fd_in, int fd_out);
 int		get_infile(t_args *arg);
 int		get_fd_out(t_args *arg, int cmd_index, int fd[2]);
+int		get_empty_pipe_out(void);
 
 //	|- ~~ -| Utils |- ~~ -|
 

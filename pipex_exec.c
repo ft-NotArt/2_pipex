@@ -6,7 +6,7 @@
 /*   By: anoteris <noterisarthur42@gmail.com>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/27 22:05:37 by anoteris          #+#    #+#             */
-/*   Updated: 2025/01/08 22:10:21 by anoteris         ###   ########.fr       */
+/*   Updated: 2025/01/11 17:14:34 by anoteris         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ int	recursive_pipex(t_args *arg, int cmd_index, int *pid)
 	else
 		fd_in = get_infile(arg);
 	if (fd_in == -1)
-		return (-1);
+		return (get_empty_pipe_out());
 	if (cmd_index < (arg->c - (4 + arg->here_doc)) && pipe(fd) == -1)
 		return (pipe_error(fd_in));
 	pid[cmd_index] = fork();
